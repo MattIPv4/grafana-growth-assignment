@@ -40,7 +40,8 @@ function App() {
     const timestamp = Date.now();
 
     await fetchLastLocation().then((res) => {
-      setResponse({ timestamp, ...res });
+      const executionTime = Date.now() - timestamp;
+      setResponse({ timestamp, executionTime, ...res });
     });
   };
 
@@ -64,7 +65,7 @@ function App() {
             <td>{response.timestamp}</td>
             <td>{response?.address?.street}</td>
             <td>{response?.address?.city}</td>
-            <td></td>
+            <td>{response.executionTime} </td>
           </tr>
         </tbody>
       </table>
