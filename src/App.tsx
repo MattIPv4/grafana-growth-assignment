@@ -72,7 +72,7 @@ function App() {
         <tbody>
           {responses.map((response) => (
             <tr key={response.timestamp}>
-              <td>{response.timestamp}</td>
+              <td>{new Date(response.timestamp).toLocaleString()}</td>
               <td>{response.address.street}</td>
               <td>{response.address.city}</td>
               <td>{response.executionTime} </td>
