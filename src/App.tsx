@@ -31,7 +31,8 @@ const results: Result[] = [
     executionTime: 400,
   },
 ];
-const getStyles = () => ({
+
+const styles = {
   button: css`
     border: 1px solid black;
     background: transparent;
@@ -40,7 +41,7 @@ const getStyles = () => ({
   container: css`
     margin: 10px;
   `,
-});
+} as const;
 
 function App() {
   const [responses, setResponses] = useState(results);
@@ -64,10 +65,9 @@ function App() {
     return { fastest, slowest, average };
   }, [responses]);
 
-  const s = getStyles();
   return (
-    <div className={s.container}>
-      <button className={s.button} onClick={() => handleOnClick()}>
+    <div className={styles.container}>
+      <button className={styles.button} onClick={() => handleOnClick()}>
         Get Last Location
       </button>
       <table>
