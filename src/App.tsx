@@ -55,7 +55,11 @@ function App() {
   const handleOnClick = async () => {
     // Immediately store a loading state
     const timestamp = Date.now();
-    setResponses((prev) => [...prev, { timestamp, loading: true }]);
+    let idx: number;
+    setResponses((prev) => {
+      idx = prev.length;
+      return prev.concat({ timestamp, loading: true });
+    });
 
     await fetchLastLocation()
       .then((res) => {
@@ -64,13 +68,11 @@ function App() {
 
         // Replace the loading state with the actual result
         const executionTime = Date.now() - timestamp;
-        setResponses((prev) =>
-          prev.map((r) =>
-            r.timestamp === timestamp
-              ? { ...parsed, timestamp, executionTime }
-              : r,
-          ),
-        );
+        setResponses((prev) => {
+          const copy = prev.slice();
+          copy[idx] = { ...parsed, timestamp, executionTime };
+          return copy;
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -80,9 +82,10 @@ function App() {
   };
 
   const stats = useMemo(() => {
-    const executionTimes = responses
-      .filter((r): r is Result => !("loading" in r))
-      .map((r) => r.executionTime);
+    const executionTimes = responses.reduce((times, response) => {
+      if (!("loading" in response)) times.push(response.executionTime);
+      return times;
+    }, [] as number[]);
     const fastest = Math.min(...executionTimes);
     const slowest = Math.max(...executionTimes);
     const average =
