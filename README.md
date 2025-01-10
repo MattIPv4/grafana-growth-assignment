@@ -8,7 +8,7 @@ Thanks for taking your time to work on this with us!
 
 1. Clone this repository to your local.
 
-2. Run `npm install` to install all dependencies needed.
+2. Run `npm ci` to install all dependencies needed.
 
 3. To start the project, run `npm start`. This runs the app in the development mode.
 
