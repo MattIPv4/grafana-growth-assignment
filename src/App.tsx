@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { css } from "@emotion/css";
 import z from "zod";
 
@@ -88,7 +88,7 @@ const styles = {
 function App() {
   const [responses, setResponses] = useState<(Result | Pending)[]>(results);
 
-  const handleOnClick = async () => {
+  const handleOnClick = useCallback(async () => {
     // Immediately store a loading state
     const timestamp = Date.now();
     let idx: number;
@@ -121,7 +121,7 @@ function App() {
           return copy;
         });
       });
-  };
+  }, []);
 
   const stats = useMemo(() => {
     const executionTimes = responses.reduce((times, response) => {
@@ -177,7 +177,7 @@ function App() {
       </table>
 
       <div className={styles.rail}>
-        <button className={styles.button} onClick={() => handleOnClick()}>
+        <button className={styles.button} onClick={handleOnClick}>
           Get Last Location
         </button>
 
