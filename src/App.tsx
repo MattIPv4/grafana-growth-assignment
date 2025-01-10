@@ -3,8 +3,17 @@ import { css } from "@emotion/css";
 
 import { fetchLastLocation } from "./backend/fetchLastLocations";
 
+interface Result {
+  timestamp: number;
+  address: {
+    street: string;
+    city: string;
+  };
+  executionTime: number;
+}
+
 // This is an example results data structure
-const results: any = [
+const results: Result[] = [
   {
     timestamp: Date.now(),
     address: {
@@ -34,14 +43,14 @@ const getStyles = () => ({
 });
 
 function App() {
-  const [response, setResponse] = useState(results);
+  const [responses, setResponses] = useState(results);
 
   const handleOnClick = async () => {
     const timestamp = Date.now();
 
     await fetchLastLocation().then((res) => {
       const executionTime = Date.now() - timestamp;
-      setResponse({ timestamp, executionTime, ...res });
+      setResponses((prev) => [...prev, { timestamp, executionTime, ...res }]);
     });
   };
 
@@ -61,12 +70,14 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{response.timestamp}</td>
-            <td>{response?.address?.street}</td>
-            <td>{response?.address?.city}</td>
-            <td>{response.executionTime} </td>
-          </tr>
+          {responses.map((response) => (
+            <tr key={response.timestamp}>
+              <td>{response.timestamp}</td>
+              <td>{response.address.street}</td>
+              <td>{response.address.city}</td>
+              <td>{response.executionTime} </td>
+            </tr>
+          ))}
         </tbody>
       </table>
       <div>
