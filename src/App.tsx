@@ -85,15 +85,37 @@ function App() {
               <td>{new Date(response.timestamp).toLocaleString()}</td>
               <td>{response.address.street}</td>
               <td>{response.address.city}</td>
-              <td>{response.executionTime} </td>
+              <td>
+                {response.executionTime.toLocaleString(undefined, {
+                  maximumFractionDigits: 2,
+                })}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
       <div>
-        <div>Fastest: {stats.fastest}ms</div>
-        <div>Slowest: {stats.slowest}ms</div>
-        <div>Average: {stats.average}ms</div>
+        <div>
+          Fastest:{" "}
+          {stats.fastest.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}
+          ms
+        </div>
+        <div>
+          Slowest:{" "}
+          {stats.slowest.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}
+          ms
+        </div>
+        <div>
+          Average:{" "}
+          {stats.average.toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}
+          ms
+        </div>
       </div>
     </div>
   );
