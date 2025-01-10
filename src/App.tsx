@@ -16,7 +16,7 @@ type Result = z.infer<typeof LocationSchema> & {
   executionTime: number;
 };
 
-type Loading = { timestamp: number; loading: true };
+type Pending = { timestamp: number; state: "loading" | "failed" };
 
 // This is an example results data structure
 const results: Result[] = [
@@ -50,7 +50,7 @@ const styles = {
 } as const;
 
 function App() {
-  const [responses, setResponses] = useState<(Result | Loading)[]>(results);
+  const [responses, setResponses] = useState<(Result | Pending)[]>(results);
 
   const handleOnClick = async () => {
     // Immediately store a loading state
@@ -58,7 +58,7 @@ function App() {
     let idx: number;
     setResponses((prev) => {
       idx = prev.length;
-      return prev.concat({ timestamp, loading: true });
+      return prev.concat({ timestamp, state: "loading" });
     });
 
     await fetchLastLocation()
@@ -75,15 +75,21 @@ function App() {
         });
       })
       .catch((err) => {
-        console.error(err);
-        // TODO: Show user an error?
         // TODO: Track error in Sentry etc.?
+        console.error(err);
+
+        // Replace the loading state with a failed state
+        setResponses((prev) => {
+          const copy = prev.slice();
+          copy[idx] = { timestamp, state: "failed" };
+          return copy;
+        });
       });
   };
 
   const stats = useMemo(() => {
     const executionTimes = responses.reduce((times, response) => {
-      if (!("loading" in response)) times.push(response.executionTime);
+      if (!("state" in response)) times.push(response.executionTime);
       return times;
     }, [] as number[]);
     const fastest = Math.min(...executionTimes);
@@ -111,8 +117,15 @@ function App() {
         <tbody>
           {responses.map((response) => (
             <tr key={response.timestamp}>
-              {"loading" in response ? (
-                <td colSpan={4}>Loading...</td>
+              {"state" in response ? (
+                <td colSpan={4}>
+                  {
+                    {
+                      loading: "Loading...",
+                      failed: "Failed to fetch",
+                    }[response.state]
+                  }
+                </td>
               ) : (
                 <>
                   <td>{new Date(response.timestamp).toLocaleString()}</td>
