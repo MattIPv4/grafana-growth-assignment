@@ -16,6 +16,8 @@ type Result = z.infer<typeof LocationSchema> & {
   executionTime: number;
 };
 
+type Loading = { timestamp: number; loading: true };
+
 // This is an example results data structure
 const results: Result[] = [
   {
@@ -48,19 +50,27 @@ const styles = {
 } as const;
 
 function App() {
-  const [responses, setResponses] = useState(results);
+  const [responses, setResponses] = useState<(Result | Loading)[]>(results);
 
   const handleOnClick = async () => {
+    // Immediately store a loading state
     const timestamp = Date.now();
+    setResponses((prev) => [...prev, { timestamp, loading: true }]);
 
     await fetchLastLocation()
       .then((res) => {
+        // Enforce an API schema, throwing if not valid
         const parsed = LocationSchema.parse(res);
+
+        // Replace the loading state with the actual result
         const executionTime = Date.now() - timestamp;
-        setResponses((prev) => [
-          ...prev,
-          { timestamp, executionTime, ...parsed },
-        ]);
+        setResponses((prev) =>
+          prev.map((r) =>
+            r.timestamp === timestamp
+              ? { ...parsed, timestamp, executionTime }
+              : r,
+          ),
+        );
       })
       .catch((err) => {
         console.error(err);
@@ -70,7 +80,9 @@ function App() {
   };
 
   const stats = useMemo(() => {
-    const executionTimes = responses.map((res) => res.executionTime);
+    const executionTimes = responses
+      .filter((r): r is Result => !("loading" in r))
+      .map((r) => r.executionTime);
     const fastest = Math.min(...executionTimes);
     const slowest = Math.max(...executionTimes);
     const average =
@@ -96,14 +108,20 @@ function App() {
         <tbody>
           {responses.map((response) => (
             <tr key={response.timestamp}>
-              <td>{new Date(response.timestamp).toLocaleString()}</td>
-              <td>{response.address.street}</td>
-              <td>{response.address.city}</td>
-              <td>
-                {response.executionTime.toLocaleString(undefined, {
-                  maximumFractionDigits: 2,
-                })}
-              </td>
+              {"loading" in response ? (
+                <td colSpan={4}>Loading...</td>
+              ) : (
+                <>
+                  <td>{new Date(response.timestamp).toLocaleString()}</td>
+                  <td>{response.address.street}</td>
+                  <td>{response.address.city}</td>
+                  <td>
+                    {response.executionTime.toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                </>
+              )}
             </tr>
           ))}
         </tbody>
