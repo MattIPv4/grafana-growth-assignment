@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { css } from "@emotion/css";
 
 import { fetchLastLocation } from "./backend/fetchLastLocations";
@@ -54,6 +54,16 @@ function App() {
     });
   };
 
+  const stats = useMemo(() => {
+    const executionTimes = responses.map((res) => res.executionTime);
+    const fastest = Math.min(...executionTimes);
+    const slowest = Math.max(...executionTimes);
+    const average =
+      executionTimes.reduce((a, b) => a + b, 0) / executionTimes.length;
+
+    return { fastest, slowest, average };
+  }, [responses]);
+
   const s = getStyles();
   return (
     <div className={s.container}>
@@ -81,9 +91,9 @@ function App() {
         </tbody>
       </table>
       <div>
-        <div>Fastest: ms </div>
-        <div>Slowest: ms </div>
-        <div>Average: ms </div>
+        <div>Fastest: {stats.fastest}ms</div>
+        <div>Slowest: {stats.slowest}ms</div>
+        <div>Average: {stats.average}ms</div>
       </div>
     </div>
   );
