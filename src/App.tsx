@@ -1,16 +1,20 @@
 import React, { useMemo, useState } from "react";
 import { css } from "@emotion/css";
+import z from "zod";
 
 import { fetchLastLocation } from "./backend/fetchLastLocations";
 
-interface Result {
+const LocationSchema = z.object({
+  address: z.object({
+    street: z.string(),
+    city: z.string(),
+  }),
+});
+
+type Result = z.infer<typeof LocationSchema> & {
   timestamp: number;
-  address: {
-    street: string;
-    city: string;
-  };
   executionTime: number;
-}
+};
 
 // This is an example results data structure
 const results: Result[] = [
@@ -49,10 +53,20 @@ function App() {
   const handleOnClick = async () => {
     const timestamp = Date.now();
 
-    await fetchLastLocation().then((res) => {
-      const executionTime = Date.now() - timestamp;
-      setResponses((prev) => [...prev, { timestamp, executionTime, ...res }]);
-    });
+    await fetchLastLocation()
+      .then((res) => {
+        const parsed = LocationSchema.parse(res);
+        const executionTime = Date.now() - timestamp;
+        setResponses((prev) => [
+          ...prev,
+          { timestamp, executionTime, ...parsed },
+        ]);
+      })
+      .catch((err) => {
+        console.error(err);
+        // TODO: Show user an error?
+        // TODO: Track error in Sentry etc.?
+      });
   };
 
   const stats = useMemo(() => {
