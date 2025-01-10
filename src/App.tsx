@@ -1,26 +1,26 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { css } from "@emotion/css";
 
 import { fetchLastLocation } from "./backend/fetchLastLocations";
 
 // This is an example results data structure
-const results:any = [
+const results: any = [
   {
     timestamp: Date.now(),
     address: {
       street: "5th Ave",
-      city: "Random City"
+      city: "Random City",
     },
-    executionTime: 900
+    executionTime: 900,
   },
   {
     timestamp: Date.now() + 2000,
     address: {
       street: "Main Road",
-      city: "New Town"
+      city: "New Town",
     },
-    executionTime: 400
-  }
+    executionTime: 400,
+  },
 ];
 const getStyles = () => ({
   button: css`
@@ -30,7 +30,7 @@ const getStyles = () => ({
   `,
   container: css`
     margin: 10px;
-  `
+  `,
 });
 
 function App() {
@@ -39,16 +39,17 @@ function App() {
   const handleOnClick = async () => {
     const timestamp = Date.now();
 
-    await fetchLastLocation().then(res => {
-      setResponse({timestamp, ...res})
-    })
-
+    await fetchLastLocation().then((res) => {
+      setResponse({ timestamp, ...res });
+    });
   };
 
-  const s = getStyles()
+  const s = getStyles();
   return (
     <div className={s.container}>
-      <button className={s.button} onClick={() => handleOnClick()}>Get Last Location</button>
+      <button className={s.button} onClick={() => handleOnClick()}>
+        Get Last Location
+      </button>
       <table>
         <thead>
           <tr>
@@ -59,18 +60,18 @@ function App() {
           </tr>
         </thead>
         <tbody>
-            <tr>
-              <td>{response.timestamp}</td>
-              <td>{response?.address?.street}</td>
-              <td>{response?.address?.city}</td>
-              <td></td>
-            </tr>
+          <tr>
+            <td>{response.timestamp}</td>
+            <td>{response?.address?.street}</td>
+            <td>{response?.address?.city}</td>
+            <td></td>
+          </tr>
         </tbody>
       </table>
       <div>
-        <div>Fastest:  ms </div>
-        <div>Slowest:  ms </div>
-        <div>Average:  ms </div>
+        <div>Fastest: ms </div>
+        <div>Slowest: ms </div>
+        <div>Average: ms </div>
       </div>
     </div>
   );
