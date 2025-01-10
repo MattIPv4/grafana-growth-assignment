@@ -33,5 +33,18 @@ Thanks for taking your time to work on this with us!
 This exercise was meant as a very basic set up. We've got a few questions for you before you leave. Feel free to add to this read me and let us know here.
 
 1. What can you do to improve it?
+   - Replace react-scripts with custom webpack configuration
+   - Replace react-scripts with direct Jest or Vitest configuration
+   - Update testing-library dependencies
+   - Update React version to v19
 2. In the 1-2 hours time frame, what did you do to improve it?
+   - Added prettier to consistently format code
+   - Cleaned up dependencies
+   - Added API schema checking + types for results
+   - Stored full results in state instead of only most recent
+   - Showed a visual indicator of a row loading (and failing to load)
+   - Computed required stats for the requests (memoized for performance)
+   - Added basic styling to the page
+   - Wrote test suite for the page
 3. Did you find any potential bugs?
+   - Before adding types, the response state held an array initially and the only the last result on button click
