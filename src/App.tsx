@@ -18,7 +18,6 @@ type Result = z.infer<typeof LocationSchema> & {
 
 type Pending = { timestamp: number; state: "loading" | "failed" };
 
-// This is an example results data structure
 const results: Result[] = [
   {
     timestamp: Date.now(),
@@ -38,16 +37,53 @@ const results: Result[] = [
   },
 ];
 
+// TODO: Mobile:tm:
 const styles = {
-  button: css`
-    border: 1px solid black;
-    background: transparent;
-    padding: 5px;
-  `,
   container: css`
-    margin: 10px;
+    align-items: start;
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1em;
+    margin: 1em;
   `,
-} as const;
+  table: css`
+    border-spacing: 0;
+    flex: 1 1 auto;
+  `,
+  row: css`
+    &:nth-child(even) {
+      td {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    th {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.75);
+    }
+  `,
+  pending: css`
+    font-style: italic;
+    opacity: 0.5;
+  `,
+  button: css`
+    border: 1px solid rgba(0, 0, 0, 0.75);
+    background: transparent;
+    padding: 0.25em;
+  `,
+  rail: css`
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    gap: 1em;
+    position: sticky;
+    top: 1em;
+  `,
+  stats: css`
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+  `,
+};
 
 function App() {
   const [responses, setResponses] = useState<(Result | Pending)[]>(results);
@@ -102,12 +138,9 @@ function App() {
 
   return (
     <div className={styles.container}>
-      <button className={styles.button} onClick={() => handleOnClick()}>
-        Get Last Location
-      </button>
-      <table>
+      <table className={styles.table}>
         <thead>
-          <tr>
+          <tr className={styles.row}>
             <th>Timestamp</th>
             <th>Street</th>
             <th>City</th>
@@ -116,9 +149,9 @@ function App() {
         </thead>
         <tbody>
           {responses.map((response) => (
-            <tr key={response.timestamp}>
+            <tr key={response.timestamp} className={styles.row}>
               {"state" in response ? (
-                <td colSpan={4}>
+                <td colSpan={4} className={styles.pending}>
                   {
                     {
                       loading: "Loading...",
@@ -142,27 +175,34 @@ function App() {
           ))}
         </tbody>
       </table>
-      <div>
-        <div>
-          Fastest:{" "}
-          {stats.fastest.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          })}
-          ms
-        </div>
-        <div>
-          Slowest:{" "}
-          {stats.slowest.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          })}
-          ms
-        </div>
-        <div>
-          Average:{" "}
-          {stats.average.toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          })}
-          ms
+
+      <div className={styles.rail}>
+        <button className={styles.button} onClick={() => handleOnClick()}>
+          Get Last Location
+        </button>
+
+        <div className={styles.stats}>
+          <div>
+            Fastest:{" "}
+            {stats.fastest.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
+            ms
+          </div>
+          <div>
+            Slowest:{" "}
+            {stats.slowest.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
+            ms
+          </div>
+          <div>
+            Average:{" "}
+            {stats.average.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
+            ms
+          </div>
         </div>
       </div>
     </div>
