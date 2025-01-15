@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { Fragment, useCallback, useMemo, useState } from "react";
 import { css } from "@emotion/css";
 import z from "zod";
 
@@ -136,6 +136,18 @@ function App() {
     return { fastest, slowest, average };
   }, [responses]);
 
+  const grouped = useMemo(
+    () =>
+      responses.reduce(
+        (obj, response) => {
+          const group = "state" in response ? "Pending" : response.address.city;
+          return { ...obj, [group]: (obj[group] || []).concat(response) };
+        },
+        {} as Record<string, (Result | Pending)[]>,
+      ),
+    [responses],
+  );
+
   return (
     <div className={styles.container}>
       <table className={styles.table}>
@@ -148,31 +160,41 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {responses.map((response) => (
-            <tr key={response.timestamp} className={styles.row}>
-              {"state" in response ? (
-                <td colSpan={4} className={styles.pending}>
-                  {
-                    {
-                      loading: "Loading...",
-                      failed: "Failed to fetch",
-                    }[response.state]
-                  }
-                </td>
-              ) : (
-                <>
-                  <td>{new Date(response.timestamp).toLocaleString()}</td>
-                  <td>{response.address.street}</td>
-                  <td>{response.address.city}</td>
-                  <td>
-                    {response.executionTime.toLocaleString(undefined, {
-                      maximumFractionDigits: 2,
-                    })}
-                  </td>
-                </>
-              )}
-            </tr>
-          ))}
+          {Object.entries(grouped)
+            .toSorted(([a], [b]) => a.localeCompare(b))
+            .map(([group, groupResponses]) => (
+              <Fragment key={group}>
+                <tr>
+                  <td colSpan={4}>{group}</td>
+                </tr>
+
+                {groupResponses.map((response) => (
+                  <tr key={response.timestamp} className={styles.row}>
+                    {"state" in response ? (
+                      <td colSpan={4} className={styles.pending}>
+                        {
+                          {
+                            loading: "Loading...",
+                            failed: "Failed to fetch",
+                          }[response.state]
+                        }
+                      </td>
+                    ) : (
+                      <>
+                        <td>{new Date(response.timestamp).toLocaleString()}</td>
+                        <td>{response.address.street}</td>
+                        <td>{response.address.city}</td>
+                        <td>
+                          {response.executionTime.toLocaleString(undefined, {
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </Fragment>
+            ))}
         </tbody>
       </table>
 
