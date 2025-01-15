@@ -85,6 +85,15 @@ const styles = {
   `,
 };
 
+const groupedBy = <T extends {}>(arr: T[], key: (item: T) => string) =>
+  arr.reduce(
+    (obj, item) => {
+      const group = key(item);
+      return { ...obj, [group]: (obj[group] || []).concat(item) };
+    },
+    {} as Record<string, T[]>,
+  );
+
 function App() {
   const [responses, setResponses] = useState<(Result | Pending)[]>(results);
 
@@ -138,12 +147,8 @@ function App() {
 
   const grouped = useMemo(
     () =>
-      responses.reduce(
-        (obj, response) => {
-          const group = "state" in response ? "Pending" : response.address.city;
-          return { ...obj, [group]: (obj[group] || []).concat(response) };
-        },
-        {} as Record<string, (Result | Pending)[]>,
+      groupedBy(responses, (response) =>
+        "state" in response ? "Pending" : response.address.city,
       ),
     [responses],
   );
