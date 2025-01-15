@@ -166,11 +166,13 @@ function App() {
         </thead>
         <tbody>
           {Object.entries(grouped)
-            .toSorted(([a], [b]) => a.localeCompare(b))
+            .toSorted(([a], [b]) =>
+              a === "Pending" || b === "Pending" ? -1 : a.localeCompare(b),
+            )
             .map(([group, groupResponses]) => (
               <Fragment key={group}>
                 <tr>
-                  <td colSpan={4}>{group}</td>
+                  <th colSpan={4}>{group}</th>
                 </tr>
 
                 {groupResponses.map((response) => (
